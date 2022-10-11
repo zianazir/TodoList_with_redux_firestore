@@ -1,6 +1,8 @@
 
-const initialState = {
-    list : []
+export const initialState = {
+    loading:true,
+    list : [],
+    button_loading : false
 }
 
 const todoReducers = (state = initialState , action) =>{
@@ -8,16 +10,19 @@ const todoReducers = (state = initialState , action) =>{
         case "Add_Todo" :
             
         return{                                             // to return the data already stored in the initialState *important*
+            button_loading : true,
             ...state ,
             list : [
                 ...state.list,
                 {
-                    id :  action.payload.id,
                     first_name :  action.payload.first_name,
                     last_name :  action.payload.last_name,
                     email :  action.payload.email
                 }
-            ]
+                
+            ],
+            button_loading : false,
+         
         }
 
         case "Delete_Todo" :
@@ -28,23 +33,39 @@ const todoReducers = (state = initialState , action) =>{
             list : newlist
         }
         case 'Edit_Todo':
+           
             const updatedTodos = state.list.map((elem)=>{
-                if(elem.id === action.payload.id){
-                    return {...elem , first_name : action.payload.first_name , last_name : action.payload.last_name , email: action.payload.email}
+                if(elem.id === action.updatedDoc.id){
+                    return {button_loading:true,  ...elem ,  first_name : action.updatedDoc.first_name , last_name : action.updatedDoc.last_name , email: action.updatedDoc.email}
 
                 }
                 return elem
             })
             return {
                 ...state , 
-                list : updatedTodos
+                list : updatedTodos,
+                button_loading : false
             }
 
         case 'Get_Todos' :  
+            
             return {
-                
+                ...state,
                 list : action.payload
+                     
             }
+        case 'loading' :
+            return {
+                ...state,
+                loading : action.payload
+            }
+        case "button_loading" : {
+            return {
+                ...state,
+                button_loading : action.payload
+                
+            }
+        }
 
             
         default: return state;
