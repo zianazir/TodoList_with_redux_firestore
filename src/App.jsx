@@ -1,9 +1,10 @@
 import React, { useState ,useEffect} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button_loadding,getTodos,Loading, deleteTodo, editTodo } from "./Actions/Index";
-import Form from "./Components/Form";
+import { Button_loadding , getTodos,Loading, deleteTodo, editTodo } from "./Actions/Index";
+import AddForm from "./Components/AddForm";
 import Spinner from "./Components/Spinner";
 import Spinner2 from "./Components/Spinner2";
+import {Button, Form ,Modal} from 'react-bootstrap';
 
 const App = () => {
 
@@ -16,8 +17,10 @@ const App = () => {
 
   const list = useSelector((state) => state.todoReducers.list);
   const loading = useSelector((state) => state.todoReducers.loading);
-  
   const btn_loading = useSelector((state) => state.todoReducers.button_loading);
+
+
+  
 
   const dispatch = useDispatch();
 
@@ -27,99 +30,92 @@ const App = () => {
       dispatch(Loading(false))
  }else{
    dispatch(Loading(true))
-
  }
-    
   }, [dispatch]);
 
-  return (
-    <div className="container  mt-5">
-      <div 
-        className="modal fade " 
-        id="exampleModal"
-        tabIndex="-1"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog ">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5" id="exampleModalLabel">
-                Update Todo
-              </h1>
+  const [show, setShow] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+
+  const handleClose = () => setShow(false) 
+
+  const handleShow = (elem) => {
+    setShow(true) 
+     seteditNewTodo(elem)
+    };
+
+  const handleSubmit = (editNewTodo) =>{
+    return new Promise((resolve)=>{
+      setShowLoading(true)
+      dispatch(Button_loadding(true))
+      setTimeout(() => {
+        dispatch(Button_loadding(false))
+        setShowLoading(false)
+        setShow(false)
+      }, 1000)
+      dispatch(editTodo(editNewTodo))
+      resolve()
+    })
   
-            </div>
-            <form onSubmit={(e) => {
-                  e.preventDefault();
-                  dispatch(editTodo(editNewTodo ))
-                  dispatch(Button_loadding(true));
-                  // console.log(editNewTodo)
-                }}>
-            <div className="modal-body">
-              <label >First Name</label>
-              <input
-                type="text " className="form-control"
-                value={editNewTodo.first_name}
-                onChange={(e) => {
-                  seteditNewTodo({
-                    ...editNewTodo,
-                    first_name: e.target.value,
-                    
-                  });
-                }}
-              required/><br/>
-              <label >Last Name</label>
-              <input
-                type="text " className="form-control"
-                value={editNewTodo.last_name}
-                onChange={(e) => {
-                  seteditNewTodo({
-                    ...editNewTodo,
-                    last_name: e.target.value,
+  }
+  return (
+    <>
+   
+
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Modal heading</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={(e)=>{e.preventDefault() , handleSubmit(editNewTodo)}}>
+            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+              <Form.Label>First Name</Form.Label>
+              <Form.Control
+              value = {editNewTodo.first_name}
+              onChange={(e) => {
+                seteditNewTodo({
+                  ...editNewTodo,
+                  first_name: e.target.value,
                   
-                  });
-                }}
-              required/><br/>
-              <label >Email</label>
-              <input
-                type="email" className="form-control"
-                value={editNewTodo.email}
+                })}}
+                type="text"
+                autoFocus
+                required
+              />
+               <Form.Label>Last Name</Form.Label>
+              <Form.Control
+               value = {editNewTodo.last_name}
+               onChange={(e) => {
+                 seteditNewTodo({
+                   ...editNewTodo,
+                   last_name: e.target.value,
+                 })}}
+                type="text"
+                autoFocus
+                required
+              />
+               <Form.Label>Email</Form.Label>
+              <Form.Control
+                value = {editNewTodo.email}
                 onChange={(e) => {
                   seteditNewTodo({
                     ...editNewTodo,
                     email: e.target.value,
-                  });
-                }}
-              required /><br/>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-sm btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-              
-              
-              <button
-                type="submit"
-                className="btn btn-sm btn-success"
-                 
-              >
-               {btn_loading ? <Spinner2/> :  "Save Changes"}
-              </button>
-             
-
-            </div>
-            </form>
+                  })}}
+                type="email"
+                autoFocus
+                required 
+              />
+            </Form.Group>
+         
+        {showLoading ? <Spinner2/> :  <Button variant="warning" className="btn btn-sm" type='submit'>
+            Save Changes
+          </Button>}
             
-
-            
-          </div>
-        </div>
-      </div>
-      <Form />
+          </Form>
+        </Modal.Body>
+      </Modal>
+    
+    <AddForm />
       {loading ? <Spinner/> :<table className="table text-center m-5 text-bg-light">
         <thead>
           <tr>
@@ -145,27 +141,17 @@ const App = () => {
                   >
                     Done
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-warning mx-1"
-                    data-bs-toggle="modal"
-                    data-bs-target="#exampleModal"
-                    onClick={() =>{ seteditNewTodo(elem)}}
-                  >
-                    Edit
-                  </button>
+                  <Button variant="warning mx-1 sm" className="btn btn-sm" onClick={()=>handleShow(elem)}> Edit  </Button>
+              
+                    
+                  
                 </td>
               </tr>
             </tbody>
           );
         })}
       </table> }
-
-      
-        
-       
-        
-    </div>
+      </>
   );
 };
 

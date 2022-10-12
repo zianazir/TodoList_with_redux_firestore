@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { addTodo, Button_loadding } from "../Actions/Index";
+import { addTodo, Button_loadding, getTodos } from "../Actions/Index";
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "./Spinner";
 
@@ -18,7 +18,10 @@ const Form = () => {
     e.preventDefault();
     dispatch(addTodo(inputData));
     dispatch(Button_loadding(true));
-    setInputData({id: '' , first_name: "", last_name: "", email: "" });
+    setTimeout(() => {
+      setInputData({id: '' , first_name: "", last_name: "", email: "" });
+      
+    }, 1000);
   };
 
   return (

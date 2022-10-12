@@ -1,5 +1,6 @@
 import { db } from "../firebase_config";
 
+
 import {
   addDoc,
   collection,
@@ -12,6 +13,7 @@ import {
 } from "@firebase/firestore";
 
 
+
 export const addTodo = (newData) => async (dispatch) => {
   try {
     await addDoc(collection(db, "todolist-firebase-redux"), {
@@ -22,7 +24,6 @@ export const addTodo = (newData) => async (dispatch) => {
   
     dispatch({
       type: "Add_Todo",
-      payload: newData,
     });
     
   } catch (error) {
@@ -51,13 +52,15 @@ export const deleteTodo = (id) => async (dispatch) => {
 export const getTodos = () => async (dispatch) => {
 
   try {
-    const data = await getDocs(collection(db ,"todolist-firebase-redux" ))
-    const todoArray = data.docs.map((doc)=>({  id:doc.id,   ...doc.data()}))
+     onSnapshot(collection(db ,"todolist-firebase-redux" ) , (snapshot)=>{
+      const todoArray = []
+      snapshot.docs.forEach((doc)=>{todoArray.push({...doc.data() , id: doc.id})})  
     
     dispatch({
       type: "Get_Todos",
       payload: todoArray,
     });
+  })
     
   } catch (error) {
     console.error(error)
@@ -68,13 +71,16 @@ export const getTodos = () => async (dispatch) => {
 
 
 
-export const editTodo = (updatedDoc) => async (dispatch) => {
+export const editTodo = (updatedDoc,onSuccess=()=>{
+ 
+}) => async (dispatch) => {
 
   try {
     const userDoc = doc(db , "todolist-firebase-redux", updatedDoc.id)
     const newFields = {email : updatedDoc.email , first_name: updatedDoc.first_name , last_name : updatedDoc.last_name}
     await updateDoc(userDoc , newFields)
-  
+    onSuccess()
+    
     dispatch({
               type: "Edit_Todo",
               updatedDoc,

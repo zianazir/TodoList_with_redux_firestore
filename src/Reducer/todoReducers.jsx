@@ -10,17 +10,7 @@ const todoReducers = (state = initialState , action) =>{
         case "Add_Todo" :
             
         return{                                             // to return the data already stored in the initialState *important*
-            button_loading : true,
             ...state ,
-            list : [
-                ...state.list,
-                {
-                    first_name :  action.payload.first_name,
-                    last_name :  action.payload.last_name,
-                    email :  action.payload.email
-                }
-                
-            ],
             button_loading : false,
          
         }
